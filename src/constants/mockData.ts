@@ -1,4 +1,4 @@
-import { Monster, Quest } from "../types";
+import { Monster, Quest, StoryNode } from "../types";
 
 export const mockMonsters: Monster[] = [
   {
@@ -100,4 +100,59 @@ export const mockQuests: Quest[] = [
 export const monsterEmojis: Record<string, string> = {
   m1: "👾",
   m2: "😠",
+};
+
+// A simple 3-node branching story for Quest 1 (The Missing Toy)
+export const mockStoryTree: Record<string, StoryNode> = {
+  node1: {
+    id: "node1",
+    type: "scene",
+    text: "Bloop is looking everywhere for his favorite toy, but he cannot find it!",
+    monsterDialogue: "I lost my special toy... I feel so worried.",
+    monsterEmotion: "worried",
+    backgroundScene: "q1",
+    nextNodeId: "node2",
+  },
+  node2: {
+    id: "node2",
+    type: "choice",
+    text: "Bloop is about to give up. What should he do?",
+    monsterEmotion: "sad",
+    backgroundScene: "q1",
+    choices: [
+      {
+        id: "c1",
+        label: "Yell and throw things",
+        nextNodeId: "node3a",
+        quality: "poor",
+        feedbackText: "Oh no, that made Bloop feel worse!",
+        redirectDialogue:
+          "Hmm, that might make things worse. What else could we try?",
+      },
+      {
+        id: "c2",
+        label: "Take a breath and ask for help",
+        nextNodeId: "node3b",
+        quality: "optimal",
+        feedbackText: "Great idea! Asking for help is a good strategy.",
+      },
+    ],
+  },
+  node3a: {
+    id: "node3a",
+    type: "consequence",
+    text: "Yelling didn't help. Bloop is still upset.",
+    monsterDialogue: "I just want my toy...",
+    monsterEmotion: "angry",
+    backgroundScene: "q1",
+    nextNodeId: "node2", // Loop back to the choice
+  },
+  node3b: {
+    id: "node3b",
+    type: "ending",
+    text: "You helped Bloop search, and you found the toy under the bed!",
+    monsterDialogue: "We did it! Thank you for helping me.",
+    monsterEmotion: "happy",
+    backgroundScene: "q1",
+  },
 };
