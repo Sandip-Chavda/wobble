@@ -1,9 +1,12 @@
+import { useProgressStore } from "@/store/useProgressStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "../../components/ui/SafeAreaView";
 
 export default function ProfileScreen() {
+  const totalStars = useProgressStore((state) => state.totalStars);
+
   return (
     <SafeAreaView className="flex-1 bg-[#0D1117]">
       <View className="p-4">
@@ -19,7 +22,7 @@ export default function ProfileScreen() {
         <View className="flex-row justify-between gap-4">
           <View className="bg-[#1C1C1E] flex-1 p-4 rounded-2xl items-center border border-white/5">
             <Text className="text-3xl mb-1">⭐</Text>
-            <Text className="text-white font-bold text-lg">0</Text>
+            <Text className="text-white font-bold text-lg">{totalStars}</Text>
             <Text className="text-gray-400 text-xs">Total Stars</Text>
           </View>
           <View className="bg-[#1C1C1E] flex-1 p-4 rounded-2xl items-center border border-white/5">

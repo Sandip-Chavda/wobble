@@ -1,7 +1,9 @@
 import { Colors } from "@/constants/colors";
 import { monsterImages, sceneImages } from "@/constants/images";
 import { springs } from "@/constants/springs";
+import { useProgressStore } from "@/store/useProgressStore";
 import { Quest } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 import { Image, Pressable, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -29,6 +31,10 @@ export default function QuestCard({
   const accentColor = categoryColors[quest.category] || "#FFFFFF";
   const monsterImg = monsterImages[quest.monsterId];
   const sceneImg = sceneImages[quest.id];
+
+  const bestStars = useProgressStore(
+    (state) => state.completedQuests[quest.id] || 0,
+  );
 
   const animatedStyle = useAnimatedStyle(() => {
     return { transform: [{ scale: scale.value }] };
@@ -85,11 +91,18 @@ export default function QuestCard({
           </Text>
           <View className="flex-row items-center justify-between mt-2">
             <Text style={{ color: accentColor }} className="text-xs font-bold">
-              {quest.strategy || "Strategy"}
+              {quest.strategy}
             </Text>
-            {quest.isLocked && (
+            {quest.isLocked ? (
               <Text className="text-gray-600 text-lg">🔒</Text>
-            )}
+            ) : bestStars > 0 ? (
+              <View className="flex-row items-center">
+                <Ionicons name="star" size={14} color="#FFD700" />
+                <Text className="text-yellow-400 font-bold ml-1">
+                  {bestStars}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
       </Animated.View>

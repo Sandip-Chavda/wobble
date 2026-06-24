@@ -1,6 +1,14 @@
 import { Stack } from "expo-router";
+import { useEffect } from "react";
 import "../../global.css";
+import { useProgressStore } from "../store/useProgressStore";
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ headerShown: false }}></Stack>;
+  const loadProgress = useProgressStore((state) => state.loadProgress);
+
+  useEffect(() => {
+    loadProgress(); // Load saved stars from SQLite on app start
+  }, []);
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

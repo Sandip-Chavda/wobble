@@ -1,4 +1,5 @@
 import { SafeAreaView } from "@/components/ui/SafeAreaView";
+import { useProgressStore } from "@/store/useProgressStore";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
@@ -21,6 +22,20 @@ export default function ResultScreen() {
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const timer = setTimeout(() => setShowStars(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const { addCompletion } = useProgressStore();
+
+  useEffect(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const timer = setTimeout(() => {
+      setShowStars(true);
+      // Save progress to SQLite!
+      if (quest) {
+        addCompletion(quest.id, starsEarned);
+      }
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 
