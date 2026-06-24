@@ -156,3 +156,14 @@ export const mockStoryTree: Record<string, StoryNode> = {
     backgroundScene: "q1",
   },
 };
+
+export const mockParentStats = {
+  totalStars: 7,
+  questsCompleted: 2,
+  streak: 1,
+  strategiesLearned: ["Ask for Help", "Be Brave"],
+  recentQuests: [
+    { id: "q1", title: "The Missing Toy", stars: 3, date: "Today" },
+    { id: "q3", title: "Cloud Jumping", stars: 2, date: "Yesterday" },
+  ],
+};
