@@ -1,13 +1,8 @@
+import { useHaptics } from "@/hooks/useHaptics";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect } from "react";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withSequence,
-  withSpring,
-} from "react-native-reanimated";
-import { springs } from "../../constants/springs";
+import { View } from "react-native";
+import Animated, { ZoomIn } from "react-native-reanimated";
 
 export default function AnimatedStar({
   active,
@@ -16,36 +11,44 @@ export default function AnimatedStar({
   active: boolean;
   delay: number;
 }) {
-  const translateY = useSharedValue(-200);
-  const scale = useSharedValue(1);
+  const haptics = useHaptics();
 
   useEffect(() => {
     if (active) {
-      translateY.value = withDelay(
-        delay,
-        withSequence(
-          withSpring(0, { damping: 12, stiffness: 150 }), // Drop down fast
-          withSpring(1, springs.bouncy), // Bounce up slightly
-        ),
-      );
-    } else {
-      translateY.value = -200;
+      haptics.starEarned();
     }
   }, [active]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }, { scale: scale.value }],
-    };
-  });
+  // If not active yet, just render the empty outline star
+  if (!active) {
+    return (
+      <View
+        style={{
+          width: 72,
+          height: 72,
+          marginHorizontal: 4,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Ionicons name="star-outline" size={64} color="#374151" />
+      </View>
+    );
+  }
 
+  // If active, mount the gold star with a spring zoom-in animation
   return (
-    <Animated.View style={[animatedStyle]} className="mx-2">
-      <Ionicons
-        name={active ? "star" : "star-outline"}
-        size={64}
-        color={active ? "#FFD700" : "#ffffff"}
-      />
+    <Animated.View
+      entering={ZoomIn.delay(delay).springify()}
+      style={{
+        width: 72,
+        height: 72,
+        marginHorizontal: 4,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Ionicons name="star" size={64} color="#FFD700" />
     </Animated.View>
   );
 }

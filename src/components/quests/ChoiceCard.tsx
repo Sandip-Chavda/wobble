@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { springs } from "../../constants/springs";
+import { useHaptics } from "../../hooks/useHaptics";
 import { Choice } from "../../types";
 
 export default function ChoiceCard({
@@ -16,6 +17,7 @@ export default function ChoiceCard({
   onPress: () => void;
 }) {
   const scale = useSharedValue(1);
+  const haptics = useHaptics(); // Initialize hook
 
   const animatedStyle = useAnimatedStyle(() => {
     return { transform: [{ scale: scale.value }] };
@@ -23,6 +25,7 @@ export default function ChoiceCard({
 
   const handlePressIn = () => {
     scale.value = withSpring(0.97, springs.snappy);
+    haptics.buttonPress(); // Add haptic
   };
   const handlePressOut = () => {
     scale.value = withSpring(1, springs.snappy);
@@ -34,6 +37,8 @@ export default function ChoiceCard({
       onPressOut={handlePressOut}
       onPress={onPress}
       className="w-full mb-3"
+      accessibilityRole="button" // A11Y: Mark as button
+      accessibilityLabel={choice.label} // A11Y: Read the choice text
     >
       <Animated.View
         style={[animatedStyle]}

@@ -1,4 +1,5 @@
 import { SafeAreaView } from "@/components/ui/SafeAreaView";
+import { useHaptics } from "@/hooks/useHaptics";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
@@ -7,18 +8,30 @@ import Animated, { SlideInDown } from "react-native-reanimated";
 import ChoiceCard from "../../../components/quests/ChoiceCard";
 import TypewriterText from "../../../components/ui/TypewriterText";
 import { monsterImages, sceneImages } from "../../../constants/images";
-import { mockQuests, mockStoryTree } from "../../../constants/mockData";
+import {
+  mockMonsters,
+  mockQuests,
+  mockStoryTree,
+} from "../../../constants/mockData";
 import { useQuestStore } from "../../../store/useQuestStore";
 
 export default function PlayQuest() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const quest = mockQuests.find((q) => q.id === id);
-  const { currentNodeId, startQuest, advanceNode, makeChoice, resetQuest } =
-    useQuestStore();
+  const monster = mockMonsters.find((m) => m.id === quest?.monsterId);
+  const {
+    currentNodeId,
+    startQuest,
+    advanceNode,
+    makeChoice,
+    resetQuest,
+    calculateStars,
+  } = useQuestStore();
+
+  const haptics = useHaptics();
 
   useEffect(() => {
     if (quest) startQuest(quest, quest.startNodeId);
-    return () => resetQuest();
   }, []);
 
   if (!quest || !currentNodeId) {
@@ -32,11 +45,16 @@ export default function PlayQuest() {
   const sceneImg = sceneImages[quest.id];
 
   const handleChoice = (choiceId: string, quality: any, nextNodeId: string) => {
+    if (quality === "optimal") haptics.optimalChoice();
+    if (quality === "poor") haptics.poorChoice();
+    if (quality === "neutral") haptics.choiceSelect();
+
     makeChoice(choiceId, quality, nextNodeId);
   };
 
   const handleAdvance = () => {
     if (currentNode.type === "ending") {
+      calculateStars(); // Calculate stars before navigating!
       router.replace(`/quest/${quest.id}/result`);
     } else if (currentNode.nextNodeId) {
       advanceNode(currentNode.nextNodeId);
@@ -82,6 +100,8 @@ export default function PlayQuest() {
             source={monsterImg}
             style={{ width: 200, height: 200 }}
             resizeMode="contain"
+            accessible={true}
+            accessibilityLabel={`${monster?.name} is feeling ${currentNode.monsterEmotion}`}
           />
         </View>
 
