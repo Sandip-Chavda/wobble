@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/useAuthStore";
 import { useProgressStore } from "@/store/useProgressStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -6,6 +7,8 @@ import { SafeAreaView } from "../../components/ui/SafeAreaView";
 
 export default function ProfileScreen() {
   const totalStars = useProgressStore((state) => state.totalStars);
+
+  const signOut = useAuthStore((state) => state.signOut);
 
   return (
     <SafeAreaView className="flex-1 bg-[#0D1117]">
@@ -45,6 +48,22 @@ export default function ProfileScreen() {
           <Text className="text-gray-400 font-bold text-lg">
             Parent Dashboard
           </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => {
+            signOut();
+            router.replace("/(auth)/onboarding");
+          }}
+          className="bg-[#1C1C1E] border border-red-500/20 py-4 rounded-2xl items-center flex-row justify-center mt-4"
+        >
+          <Ionicons
+            name="log-out-outline"
+            size={20}
+            color="#EF4444"
+            style={{ marginRight: 8 }}
+          />
+          <Text className="text-red-500 font-bold text-lg">Sign Out</Text>
         </Pressable>
       </View>
     </SafeAreaView>

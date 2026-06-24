@@ -1,6 +1,12 @@
 import { Redirect } from "expo-router";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Index() {
-  // Temporary redirect to tabs until we add Clerk Auth
-  return <Redirect href="/(tabs)/home" />;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)/home" />;
+  }
+
+  return <Redirect href="/(auth)/onboarding" />;
 }
