@@ -24,8 +24,9 @@ export default function PlayQuest() {
     startQuest,
     advanceNode,
     makeChoice,
-    resetQuest,
     calculateStars,
+    disabledChoices,
+    redirectDialogue,
   } = useQuestStore();
 
   const haptics = useHaptics();
@@ -44,12 +45,17 @@ export default function PlayQuest() {
   const monsterImg = monsterImages[quest.monsterId];
   const sceneImg = sceneImages[quest.id];
 
-  const handleChoice = (choiceId: string, quality: any, nextNodeId: string) => {
+  const handleChoice = (
+    choiceId: string,
+    quality: any,
+    nextNodeId: string,
+    redirectText?: string,
+  ) => {
     if (quality === "optimal") haptics.optimalChoice();
     if (quality === "poor") haptics.poorChoice();
     if (quality === "neutral") haptics.choiceSelect();
 
-    makeChoice(choiceId, quality, nextNodeId);
+    makeChoice(choiceId, quality, nextNodeId, redirectText);
   };
 
   const handleAdvance = () => {
@@ -85,15 +91,23 @@ export default function PlayQuest() {
 
         {/* Monster & Speech Bubble Container */}
         <View className="items-center mb-10 z-10">
-          {/* Speech Bubble */}
-          {currentNode.monsterDialogue && (
+          {/* Redirect Dialogue Bubble (Red/Warning) */}
+          {redirectDialogue ? (
+            <View className="bg-[#FF6B9D] px-5 py-3 rounded-3xl mb-[-10px] max-w-[80%] relative">
+              <View className="absolute bottom-[-12px] w-6 h-6 bg-[#FF6B9D] rotate-45" />
+              <Text className="text-white text-lg font-bold text-center">
+                {redirectDialogue}
+              </Text>
+            </View>
+          ) : currentNode.monsterDialogue ? (
+            /* Normal Speech Bubble */
             <View className="bg-white px-5 py-3 rounded-3xl mb-[-10px] max-w-[80%] relative">
               <View className="absolute bottom-[-12px] w-6 h-6 bg-white rotate-45" />
               <Text className="text-black text-lg font-bold text-center">
                 {currentNode.monsterDialogue}
               </Text>
             </View>
-          )}
+          ) : null}
 
           {/* Monster */}
           <Image
@@ -123,8 +137,14 @@ export default function PlayQuest() {
                   key={choice.id}
                   choice={choice}
                   onPress={() =>
-                    handleChoice(choice.id, choice.quality, choice.nextNodeId)
+                    handleChoice(
+                      choice.id,
+                      choice.quality,
+                      choice.nextNodeId,
+                      choice.redirectDialogue,
+                    )
                   }
+                  isDisabled={disabledChoices.includes(choice.id)} // Pass disabled state!
                 />
               ))}
             </Animated.View>

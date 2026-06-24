@@ -9,23 +9,28 @@ import { springs } from "../../constants/springs";
 import { useHaptics } from "../../hooks/useHaptics";
 import { Choice } from "../../types";
 
+interface ChoiceCardProps {
+  choice: Choice;
+  onPress: () => void;
+  isDisabled?: boolean;
+}
+
 export default function ChoiceCard({
   choice,
   onPress,
-}: {
-  choice: Choice;
-  onPress: () => void;
-}) {
+  isDisabled = false,
+}: ChoiceCardProps) {
   const scale = useSharedValue(1);
-  const haptics = useHaptics(); // Initialize hook
+  const haptics = useHaptics();
 
   const animatedStyle = useAnimatedStyle(() => {
     return { transform: [{ scale: scale.value }] };
   });
 
   const handlePressIn = () => {
+    if (isDisabled) return;
     scale.value = withSpring(0.97, springs.snappy);
-    haptics.buttonPress(); // Add haptic
+    haptics.buttonPress();
   };
   const handlePressOut = () => {
     scale.value = withSpring(1, springs.snappy);
@@ -36,19 +41,42 @@ export default function ChoiceCard({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={onPress}
+      disabled={isDisabled}
       className="w-full mb-3"
-      accessibilityRole="button" // A11Y: Mark as button
-      accessibilityLabel={choice.label} // A11Y: Read the choice text
+      accessibilityRole="button"
+      accessibilityLabel={
+        isDisabled ? `Choice disabled: ${choice.label}` : choice.label
+      }
     >
       <Animated.View
-        style={[animatedStyle]}
-        className="bg-[#1C1C1E]/95 border border-white/20 rounded-2xl p-4 flex-row items-center justify-between"
+        style={[
+          animatedStyle,
+          {
+            backgroundColor: isDisabled ? "#151515" : "#1C1C1E",
+            borderColor: isDisabled ? "#2A2A2E" : "rgba(255,255,255,0.2)",
+            opacity: isDisabled ? 0.5 : 1,
+          },
+        ]}
+        className="border rounded-2xl p-4 flex-row items-center justify-between"
       >
-        <Text className="text-white font-bold text-base flex-1 mr-3">
+        <Text
+          className="font-bold text-base flex-1 mr-3"
+          style={{
+            color: isDisabled ? "#6B7280" : "white",
+            textDecorationLine: isDisabled ? "line-through" : "none",
+          }}
+        >
           {choice.label}
         </Text>
-        <View className="bg-[#6B9BFF] rounded-full p-2">
-          <Ionicons name="chevron-forward" size={18} color="white" />
+        <View
+          style={{ backgroundColor: isDisabled ? "#374151" : "#6B9BFF" }}
+          className="rounded-full p-2"
+        >
+          <Ionicons
+            name={isDisabled ? "close" : "chevron-forward"}
+            size={18}
+            color={isDisabled ? "#9CA3AF" : "white"}
+          />
         </View>
       </Animated.View>
     </Pressable>

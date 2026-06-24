@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
+import { usePreventScreenCapture } from "expo-screen-capture";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, {
@@ -17,6 +18,8 @@ export default function ParentLayout() {
   const [error, setError] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const scale = useSharedValue(1);
+
+  usePreventScreenCapture();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],

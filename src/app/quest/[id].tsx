@@ -1,6 +1,9 @@
+import { questService } from "@/services/questService";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   Pressable,
@@ -17,31 +20,22 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AnimatedButton from "../../components/ui/AnimatedButton";
 import { Colors } from "../../constants/colors";
 import { monsterImages, sceneImages } from "../../constants/images";
-import { mockMonsters, mockQuests } from "../../constants/mockData";
+import { mockMonsters } from "../../constants/mockData";
 import { springs } from "../../constants/springs";
 
 const { width } = Dimensions.get("window");
 
 export default function QuestDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const insets = useSafeAreaInsets(); // Get status bar height
+  const insets = useSafeAreaInsets();
 
-  const quest = mockQuests.find((q) => q.id === id);
-  const monster = mockMonsters.find((m) => m.id === quest?.monsterId);
+  // Fetch quest detail using TanStack Query
+  const { data, isLoading } = useQuery({
+    queryKey: ["quest", id],
+    queryFn: () => questService.getQuestById(id!),
+    enabled: !!id, // Only run if id exists
+  });
 
-  if (!quest || !monster) {
-    return (
-      <View className="flex-1 bg-[#0D1117] justify-center items-center">
-        <Text className="text-white">Quest not found!</Text>
-      </View>
-    );
-  }
-
-  const accentColor = Colors[quest.category] || "#6B9BFF";
-  const monsterImg = monsterImages[monster.id];
-  const sceneImg = sceneImages[quest.id];
-
-  // Circular Back Button Animation
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -52,6 +46,28 @@ export default function QuestDetail() {
   const handlePressOut = () => {
     scale.value = withSpring(1, springs.snappy);
   };
+
+  if (isLoading || !data) {
+    return (
+      <View className="flex-1 bg-[#0D1117] justify-center items-center">
+        <StatusBar
+          translucent
+          backgroundColor="transparent"
+          barStyle="light-content"
+        />
+        <ActivityIndicator size="large" color="#6B9BFF" />
+      </View>
+    );
+  }
+
+  const { quest } = data;
+  const monster = mockMonsters.find((m) => m.id === quest.monsterId);
+
+  if (!monster) return null;
+
+  const accentColor = Colors[quest.category] || "#6B9BFF";
+  const monsterImg = monsterImages[monster.id];
+  const sceneImg = sceneImages[quest.id];
 
   return (
     <View className="flex-1 bg-[#0D1117]">

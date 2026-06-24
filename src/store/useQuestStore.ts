@@ -7,14 +7,17 @@ interface QuestStore {
   totalChoicesMade: number;
   optimalChoicesMade: number;
   starsEarned: number;
+  disabledChoices: string[]; // NEW: Track poor choices
+  redirectDialogue: string | null; // NEW: Track monster's redirect text
   startQuest: (quest: Quest, startNodeId: string) => void;
   advanceNode: (nodeId: string) => void;
   makeChoice: (
     choiceId: string,
     quality: ChoiceQuality,
     nextNodeId: string,
+    redirectText?: string,
   ) => void;
-  calculateStars: () => void; // New function to calculate at the end
+  calculateStars: () => void;
   resetQuest: () => void;
 }
 
@@ -24,6 +27,8 @@ export const useQuestStore = create<QuestStore>((set, get) => ({
   totalChoicesMade: 0,
   optimalChoicesMade: 0,
   starsEarned: 0,
+  disabledChoices: [],
+  redirectDialogue: null,
 
   startQuest: (quest, startNodeId) =>
     set({
@@ -32,26 +37,39 @@ export const useQuestStore = create<QuestStore>((set, get) => ({
       totalChoicesMade: 0,
       optimalChoicesMade: 0,
       starsEarned: 0,
+      disabledChoices: [],
+      redirectDialogue: null,
     }),
 
-  advanceNode: (nodeId) => set({ currentNodeId: nodeId }),
+  advanceNode: (nodeId) =>
+    set({ currentNodeId: nodeId, redirectDialogue: null }),
 
-  makeChoice: (choiceId, quality, nextNodeId) =>
+  makeChoice: (choiceId, quality, nextNodeId, redirectText) =>
     set((state) => {
+      // If it's a poor choice, we DON'T advance the node. We just disable the card.
+      if (quality === "poor") {
+        return {
+          disabledChoices: [...state.disabledChoices, choiceId],
+          redirectDialogue:
+            redirectText ||
+            "Hmm, that might make things worse. What else could we try?",
+        };
+      }
+
+      // Otherwise, advance as normal
       const isOptimal = quality === "optimal";
       return {
         totalChoicesMade: state.totalChoicesMade + 1,
         optimalChoicesMade: state.optimalChoicesMade + (isOptimal ? 1 : 0),
         currentNodeId: nextNodeId,
+        redirectDialogue: null,
       };
     }),
 
-  // Calculate stars based on blueprint rules right before showing the Result Screen
   calculateStars: () =>
     set((state) => {
-      let stars = 1; // 1 star for completing
-      if (state.optimalChoicesMade > 0) stars = 2; // 2 stars for at least 1 optimal
-      // 3 stars if ALL choices made were optimal (and they made at least 1)
+      let stars = 1;
+      if (state.optimalChoicesMade > 0) stars = 2;
       if (
         state.optimalChoicesMade > 0 &&
         state.optimalChoicesMade === state.totalChoicesMade
@@ -68,5 +86,7 @@ export const useQuestStore = create<QuestStore>((set, get) => ({
       totalChoicesMade: 0,
       optimalChoicesMade: 0,
       starsEarned: 0,
+      disabledChoices: [],
+      redirectDialogue: null,
     }),
 }));

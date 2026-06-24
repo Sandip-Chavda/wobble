@@ -31,7 +31,10 @@ export default function TypewriterText({ text, speed = 80 }: TypewriterProps) {
   }, [text, speed]);
 
   return (
-    <Text className="text-white text-lg font-semibold leading-7">
+    <Text
+      className="text-white text-lg font-semibold leading-7"
+      maxFontSizeMultiplier={2} // Prevents text from becoming absurdly huge
+    >
       {displayedText}
       {!isDone && <Text className="text-white/50"> |</Text>}
     </Text>
