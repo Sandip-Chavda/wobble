@@ -22,7 +22,7 @@ export default function ChoiceCard({
   });
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.95, springs.snappy);
+    scale.value = withSpring(0.97, springs.snappy);
   };
   const handlePressOut = () => {
     scale.value = withSpring(1, springs.snappy);
@@ -37,12 +37,12 @@ export default function ChoiceCard({
     >
       <Animated.View
         style={[animatedStyle]}
-        className="bg-[#2A2A2E] border border-white/10 rounded-2xl p-4 flex-row items-center justify-between"
+        className="bg-[#1C1C1E]/95 border border-white/20 rounded-2xl p-4 flex-row items-center justify-between"
       >
         <Text className="text-white font-bold text-base flex-1 mr-3">
           {choice.label}
         </Text>
-        <View className="bg-white/10 rounded-full p-2">
+        <View className="bg-[#6B9BFF] rounded-full p-2">
           <Ionicons name="chevron-forward" size={18} color="white" />
         </View>
       </Animated.View>
